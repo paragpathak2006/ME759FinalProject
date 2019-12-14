@@ -28,21 +28,21 @@ def defaultParams(n):
             posx.append(px)
             posy.append(py)
 
-    gz = [0.0, 0.0, -9.81]
-    rod_length = 0.4
+    gz = [0.0, 0.0, -9.8]
+    rod_length = .5
     return Orientx, Orienty, pos, posx, posy, rod_length, gz
 
 
 ## 0. Set the path to the Chrono data folder
 chrono.SetChronoDataPath('./data/')
-nGrid = 9
+nGrid = 4
 Orientx, Orienty, pos, posx, posy, rod_length, gz = defaultParams(nGrid)
 
 system = Geo.setSys(gz)
 system2 = Geo.setSys(gz)
 
 ground = Geo.setGround(system)
-
+print(ground.GetPos())
 crankx = []
 cranky = []
 
@@ -55,6 +55,7 @@ for j in range(nGrid):
         if i < nGrid - 1:
             rodx = Geo.setCrank(i + j * nGrid, posx[i + j * nGrid], Orientx, rod_length, system)
             Geo.addSpringDampnersToGround(rodx, ground, system)
+
 
         if j < nGrid - 1:
             rody = Geo.setCrank(i + j * nGrid, posy[i + j * nGrid], Orienty, rod_length, system)

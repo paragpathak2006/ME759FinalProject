@@ -43,11 +43,37 @@ def setGround(system):
     ground.SetIdentifier(-1)
     ground.SetName("ground")
     ground.SetBodyFixed(True)
+    r = 0.2
+    h = 0.5
 
     cyl_g = chrono.ChCylinderShape()
-    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(-10, 0.2+2.5, -2.5)
-    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(-10, -0.2+2.5, -2.5)
-    cyl_g.GetCylinderGeometry().rad = 0.03
+    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(0-.5, h, 0)
+    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(0-.5, -h, 0)
+    cyl_g.GetCylinderGeometry().rad = r
+    ground.AddAsset(cyl_g)
+
+    cyl_g = chrono.ChCylinderShape()
+    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(4-.5, h, 0)
+    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(4-.5, -h, 0)
+    cyl_g.GetCylinderGeometry().rad = r
+    ground.AddAsset(cyl_g)
+
+    cyl_g = chrono.ChCylinderShape()
+    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(4-.5, h+4-.5, 0)
+    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(4-.5, -h+4-.5, 0)
+    cyl_g.GetCylinderGeometry().rad = r
+    ground.AddAsset(cyl_g)
+
+    cyl_g = chrono.ChCylinderShape()
+    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(-10, h+4.5, -4-.5)
+    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(-10, -h+4.5, -4-.5)
+    cyl_g.GetCylinderGeometry().rad = r
+    ground.AddAsset(cyl_g)
+
+    cyl_g = chrono.ChCylinderShape()
+    cyl_g.GetCylinderGeometry().p1 = chrono.ChVectorD(h, -10, -4-.5)
+    cyl_g.GetCylinderGeometry().p2 = chrono.ChVectorD(-h, -10, -4-.5)
+    cyl_g.GetCylinderGeometry().rad = r
     ground.AddAsset(cyl_g)
 
     col_g = chrono.ChColorAsset()
@@ -92,27 +118,36 @@ def addSpringDampners(crank1, crank2,system):
     #### (6.5, 0, 0).  Set a spring constant of 50 and a spring free length of 1.
     #### Set a damping coefficient of 5.
     sp = chrono.ChLinkSpring()
-    sp.Set_SpringK(10)
-    sp.Set_SpringR(58.0)
-    sp.Set_SpringRestLength(5.0)
+    sp.Set_SpringK(1)
+    sp.Set_SpringR(5.0)
+    sp.Set_SpringRestLength(1.0)
     sp.Initialize(crank1, crank2, False, crank1.GetPos(), crank2.GetPos())
     # engine_ground_crank.SetSpeedFunction(fun)
     system.AddLink(sp)
     return sp
 
-def addSpringDampnersToGround(crank1, crank2,system):
+def addSpringDampnersToGround(crank1, ground,system):
     #### Add a spring-damper (ChLinkspring) between ground and the ball.
     #### This element should connect the center of the ball with the global point
     #### (6.5, 0, 0).  Set a spring constant of 50 and a spring free length of 1.
     #### Set a damping coefficient of 5.
     sp = chrono.ChLinkSpring()
     sp.Set_SpringK(0)
-    sp.Set_SpringR(60.0)
+    sp.Set_SpringR(2.0)
     sp.Set_SpringRestLength(19.0)
-    sp.Initialize(crank1, crank2, False, crank1.GetPos(), crank2.GetPos())
+    sp.Initialize(crank1, ground, False, crank1.GetPos(), chrono.ChVectorD(-10, 4.5, -4))
     # engine_ground_crank.SetSpeedFunction(fun)
     system.AddLink(sp)
-    return sp
+
+    sp1 = chrono.ChLinkSpring()
+    sp1.Set_SpringK(0)
+    sp1.Set_SpringR(1.0)
+    sp1.Set_SpringRestLength(19.0)
+    sp1.Initialize(crank1, ground, False, crank1.GetPos(), chrono.ChVectorD(4.5, -10, -4))
+    # engine_ground_crank.SetSpeedFunction(fun)
+    system.AddLink(sp1)
+
+    return sp1
 
 ## Create the Irrlicht application and set-up the camera.
 def setApp(system):
@@ -126,8 +161,8 @@ def setApp(system):
     application.AddTypicalSky()
     application.AddTypicalLights()
     application.AddTypicalCamera(
-        chronoirr.vector3df(2, 5, -3),  ## camera location
-        chronoirr.vector3df(2, 0, 0))  ## "look at" location
+        chronoirr.vector3df(2, 5, -5),  ## camera location
+        chronoirr.vector3df(0, 0, 0))  ## "look at" location
 
     ## Let the Irrlicht application convert the visualization assets.
     application.AssetBindAll()
